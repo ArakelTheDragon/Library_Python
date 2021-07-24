@@ -1,0 +1,4 @@
+The difference between the self made and built-in functions are:
+When we use the built-in functions, we do not know what the function does in the background, if there is a problem, its hard to debug and fix. The built in functions are easier and when they work correctly, they lead to the correct result, speeding up the development process.
+
+When we use self-made functions, they are easier to debug as we have made them by ourselves, but they are harder to make, they take a long time and in general are slower at the start.

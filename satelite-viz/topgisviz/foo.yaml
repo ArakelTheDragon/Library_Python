@@ -1,0 +1,37 @@
+# configuration file for topgis-viz
+
+# glob pattern for finding the source files
+sources: "data/utm_*.jpg"
+output_dir: "target/mosaic/"
+mosaic:
+    columns: 5
+    rows: 5
+    cell_width: 250
+    cell_height: 250
+pipeline:
+    - "A0 = src"
+    - "A1 = greyscale A0"
+    - "A2 = red A0"
+    - "A3 = green A0"
+    - "A4 = blue A0"
+    - "B0 = equalized A0"
+    - "B1 = equalized A1"
+    - "B2 = equalized A2"
+    - "B3 = equalized A3"
+    - "B4 = equalized A4"
+    - "C0 = edge_detect_LSD B0"
+    - "C1 = edge_detect_LSD B1"
+    - "C2 = edge_detect_LSD B2"
+    - "C3 = edge_detect_LSD B3"
+    - "C4 = edge_detect_LSD B4"
+    - "D0 = filter_sobel B0"
+    - "D1 = filter_sobel B1"
+    - "D2 = filter_sobel B2"
+    - "D3 = filter_sobel B3"
+    - "D4 = filter_sobel B4"
+    - "E0 = filter_xdog B0"
+    - "E1 = filter_xdog B1"
+    - "E2 = filter_xdog B2"
+    - "E3 = filter_xdog B3"
+    - "E4 = filter_xdog B4"
+

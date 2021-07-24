@@ -1,129 +1,57 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
-
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-pip-wheel-metadata/
-share/python-wheels/
+*.dist/
 *.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
+*.pyc
+*.pyd
+*.pyo
 *.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
+*.swp
+*.egg
 target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-.python-version
-
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
-
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
+.ipynb_checkpoints/
+__pycache__/
+.idea/
+source/assignment003-video-testing/video1.mp4
+source/assignment003-video-testing/target
+source/assignment003-video-testing/target2/
+source/build/
+source/dist/
+source/src/
+source/tests/
+source/LICENSE
+source/pyproject.toml
+source/README.md
+source/setup.cfg
+topgis-viz/data/
+topgis-viz/target/
+topgis-viz.2/data/
+topgis-viz.2/output_directory/
+/source/assignment003-video-testing/data/
+/source/assignment003-video-testing/target3/
+/source/assignment003-video-testing/target4/
+/road marking identification/
+/ciirc-utils/build/
+/ciirc-utils/dist
+/ciirc-utils/ciirc_utils/images/
+/notebooks/data/
+/notebooks/images/
+/notebooks/images_other_filters/
+/topgis-viz/topgisviz/1.jpg
+/topgis-viz/topgisviz/1.mp4
+/topgis-viz/topgisviz/2.jpg
+/topgis-viz/topgisviz/4.jpg
+/topgis-viz/topgisviz/5.jpg
+/topgis-viz/topgisviz/6.jpg
+/topgis-viz/topgisviz/kr_00002.jpg
+/topgis-viz/topgisviz/laplace_image_new.jpg
+/topgis-viz/topgisviz/saved_image.jpg
+/topgis-viz/topgisviz/threshold_image_new.jpg
+/topgis-viz/topgisviz/sobel_image_new.jpg
+/topgis-viz/topgisviz/utm_00000.jpg
+/topgis-viz/topgisviz/utm_00000.mask.png
+/topgis-viz/topgisviz/xdog_image_new.jpg
+/topgis-viz/topgisviz/kr_00000.jpg
+/topgis-viz/topgisviz/kr_00001.jpg
+/topgis-viz/topgisviz/images/
+/topgis-viz/topgisviz/camera/
+/ciirc-utils.zip
+/topgis-viz/topgisviz/api_web_test.py
