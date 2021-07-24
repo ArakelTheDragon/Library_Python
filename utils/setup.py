@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
     
     
 setuptools.setup(
-    name="ciirc-utils",
+    name="utils",
     version="0.0.2",
     author="ArakelTheDragon",
     author_email="ArakelTheDragon@gmail.com",
