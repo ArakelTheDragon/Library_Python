@@ -1,27 +1,58 @@
-#Library includes
+# Library includes
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from matplotlib.pyplot import imshow, figure
-import numpy as np # Needed for remove_blur
+import numpy as np  # Needed for remove_blur
 import scipy.ndimage
 from scipy import ndimage, misc
-from scipy.ndimage.filters import gaussian_filter   # Needed for xdog, dog and hatch
-import cv2 # Needed for xdog, dog, hatch and remove_blur
-import pytest # Needed for the PyTest testing framework
-import requests                                     # Needed for get_links_in_a_url
-import re                                           # Needed for get_links_in_a_url
-import vlc # Needed by media_player_vlc
-import time # Needed by media_player_vlc
-import math # Needed for find_string_in_index
-import os # Needed for find_string_in_index
-import glob # Needed for reading_in_an_image
+from scipy.ndimage.filters import gaussian_filter  # Needed for xdog, dog and hatch
+import cv2  # Needed for xdog, dog, hatch and remove_blur
+import pytest  # Needed for the PyTest testing framework
+import requests  # Needed for get_links_in_a_url
+import re  # Needed for get_links_in_a_url
+import vlc  # Needed by media_player_vlc
+import time  # Needed by media_player_vlc
+import math  # Needed for find_string_in_index
+import os  # Needed for find_string_in_index
+import glob  # Needed for reading_in_an_image
 import sys
 import shutil
 
 
+def Weighten_image(Gaussian_blurred_image):
+    Result = cv2.addWeighted(Gaussian_blurred_image, 1.5, Gaussian_blurred_image, -0.5, 0, Gaussian_blurred_image)
+    return Result
+
+def Image_filter2d(Image):
+    # Apply blurring kernel
+    kernel2 = np.ones((5, 5), np.float32) / 25
+    Result = cv2.filter2D(src=Image, ddepth=-1, kernel=kernel2)
+    return Result
+
+
+def Image_edge_fix(Image):
+    dst = cv2.edgePreservingFilter(Image, flags=1, sigma_s=60, sigma_r=0.4)
+    return dst
+
+
+def compose(*image_list):
+    # Error checking
+    if len(image_list) == 0:
+        raise Exception("The list should not be empty!")
+
+    background = image_list[0].copy()
+
+    for image in image_list[1:]:
+        # Take only region of logo from logo image.
+        indices = np.all(image != [0, 0, 0], axis=-1)
+        print(indices)
+        background[indices] = image[indices]
+    return background
+
+
 def paste_image(s_img, l_img, x_offset, y_offset):
     l_img[y_offset:y_offset + s_img.shape[0], x_offset:x_offset + s_img.shape[1]] = s_img
-    #print("Breakpoint")
+    # print("Breakpoint")
 
 
 def equalize_histogram_rgb(rgb_img):
@@ -58,7 +89,7 @@ def clear_directory(folder):
 
 def save_image_to_file(image, path):
     print("save_image_to_file = ", image.shape, path)
-    cv2.imwrite(path, image) # Write the image gray to a file with name
+    cv2.imwrite(path, image)  # Write the image gray to a file with name
 
 
 def make_empty_rgb_image(width, height, color=(0, 0, 0)):
@@ -71,20 +102,65 @@ def gray2rgb(img):
     return cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
 
 
-def binary_and(img2, img1):
+def binary_not(image):
+    # Invert the colors of the image
+
+    inverted_dst = image.astype(np.uint8)
+    inverted_image = cv2.bitwise_not(inverted_dst)
+    return inverted_image
+
+
+def binary_or(*image_list):
+    if len(image_list) == 0:
+        raise Exception("The list should not be empty!")
+
+    background = image_list[0].copy()
+    background_dst = background.astype(np.uint8)
+
+    for image in image_list[1:]:
+        # Take only region of logo from logo image.
+        image_dst = image.astype(np.uint8)
+        background_dst = cv2.bitwise_or(background_dst, image_dst)
+
+    return background_dst
+
+
+def binary_and(*image_list):
+    if len(image_list) == 0:
+        raise Exception("The list should not be empty!")
+
+    background = image_list[0].copy()
+    background_dst = background.astype(np.uint8)
+
+    for image in image_list[1:]:
+        # Take only region of logo from logo image.
+        image_dst = image.astype(np.uint8)
+        background_dst = cv2.bitwise_and(background_dst, image_dst)
+
+    return background_dst
+
+
+"""def binary_and(img2, img1):
     # Take only region of logo from logo image.
     dst2 = img2.astype(np.uint8)
     dst1 = img1.astype(np.uint8)
     dst2_fg = cv2.bitwise_and(dst2, dst1)
-    return dst2_fg
+    return dst2_fg"""
 
 
-def binary_xor(img2, img1):
-    # Take only region of logo from logo image.
-    dst2 = img2.astype(np.uint8)
-    dst1 = img1.astype(np.uint8)
-    dst2_fg = cv2.bitwise_xor(dst2, dst1)
-    return dst2_fg
+def binary_xor(*image_list):
+    if len(image_list) == 0:
+        raise Exception("The list should not be empty!")
+
+    background = image_list[0].copy()
+    background_dst = background.astype(np.uint8)
+
+    for image in image_list[1:]:
+        # Take only region of logo from logo image.
+        image_dst = image.astype(np.uint8)
+        background_dst = cv2.bitwise_xor(background_dst, image_dst)
+
+    return background_dst
 
 
 def outline(image, thickness=1, colour="#FFFFFF"):
@@ -93,7 +169,7 @@ def outline(image, thickness=1, colour="#FFFFFF"):
     image and the original image, leaving only a thin outline around the original mask. The oputline is then drawn
     by the specific color."""
     dilated_image = dilate(image, kernel_size=(thickness, thickness))
-    outline_image = binary_xor(dilated_image, image) # dilated_image and original image
+    outline_image = binary_xor(dilated_image, image)  # dilated_image and original image
     # coloured_image = colour_the_image() # Will be implemented later and return the coloured image
     return outline_image
 
@@ -130,9 +206,9 @@ def color_to_mask(image, color=[0, 255, 0], new_color=[0, 0, 0]):
 
 
 def split_string_to_tuple(string_value):
-    resulting_tuple = tuple(map(str, string_value.split(', '))) # The elements of the tuple must always be strings
-                                                                # for example ["string1", "string2"] or change
-                                                                # str to int
+    resulting_tuple = tuple(map(str, string_value.split(', ')))  # The elements of the tuple must always be strings
+    # for example ["string1", "string2"] or change
+    # str to int
     return resulting_tuple
 
 
@@ -144,7 +220,7 @@ def remove_blur(image):
 
 def image_improve_quality(image):
     # the default
-    image_file.save("improved_quality.jpg", quality=95) # 95% is the maximum quality
+    image_file.save("improved_quality.jpg", quality=95)  # 95% is the maximum quality
 
 
 def save_to_file(new_filename, old_filename):
@@ -152,7 +228,6 @@ def save_to_file(new_filename, old_filename):
 
 
 def create_random_tuple():  # Description:
-
 
     # Create a list of strings to use with the string functions
 
@@ -209,7 +284,7 @@ def HowTo_OutputAnArrayInPython():
     display(pil_img)
 
     # display image by Pillow
-    #% matplotlib inline
+    # % matplotlib inline
     pil_im = Image.open('target/02_mandelbrot.png', 'r')
     imshow(np.asarray(pil_im))
 
@@ -463,18 +538,18 @@ def Cicles():
     return ArrayName
 
 
-def list_files_in_directory(path):                  # path = "images/"
-    list_of_files = os.listdir(path)               # If its in a function, it will not show
-                                                    # the output
+def list_files_in_directory(path):  # path = "images/"
+    list_of_files = os.listdir(path)  # If its in a function, it will not show
+    # the output
     return list_of_files
 
 
-def reading_in_an_image(path_to_read): # Reads the images in path_to_read = images/*
-    input_images = [cv2.imread(img_path)  for img_path in sorted(glob.glob(path_to_read))] # Returns the sorted files
+def reading_in_an_image(path_to_read):  # Reads the images in path_to_read = images/*
+    input_images = [cv2.imread(img_path) for img_path in sorted(glob.glob(path_to_read))]  # Returns the sorted files
     return input_images
 
 
-def get_links_in_a_url(url): # url = http://www.google.com
+def get_links_in_a_url(url):  # url = http://www.google.com
     html = requests.get(url).text
     links = re.findall('"(https?://.*?)"', html)
     return links
@@ -526,10 +601,10 @@ def draw_lines_to_image(img, segments, min_width=None, min_length=None):
     for i in range(segments.shape[0]):
         pt1 = (int(segments[i, 0]), int(segments[i, 1]))
         pt2 = (int(segments[i, 2]), int(segments[i, 3]))
-        length = math.sqrt((pt1[0]-pt2[0])*(pt1[0]-pt2[0]) + (pt1[1]-pt2[1])*(pt1[1]-pt2[1]))
+        length = math.sqrt((pt1[0] - pt2[0]) * (pt1[0] - pt2[0]) + (pt1[1] - pt2[1]) * (pt1[1] - pt2[1]))
         width = segments[i, 4]
         if (min_length is None) or (length
->= min_length):
+                                    >= min_length):
             if (min_width is None) or (width.item() >= min_width):
                 cv2.line(img, pt1, pt2, (255, 0, 0), int(np.ceil(width / 2)))
                 cv2.line(img, pt1, pt2, (0, 0, 255), 2)
@@ -541,10 +616,9 @@ def alpha_blending(foreground, background, alpha=0.5):
     return dst
 
 
-
 def hatch(image):
     """
-    A naive hatching implementation that takes an image and returns the image in 
+    A naive hatching implementation that takes an image and returns the image in
     the style of a drawing created using hatching.
     image: an n x m single channel matrix.
     returns: an n x m single channel matrix representing a hatching style image.
@@ -557,7 +631,7 @@ def hatch(image):
     width = len(xdogImage[0])
 
     if height > 1080 or width > 1920:
-        print ("This method only supports images up to 1920x1080 pixels in size")
+        print("This method only supports images up to 1920x1080 pixels in size")
         sys.exit(1)
 
     croppedTexture = hatchTexture[0:height, 0:width]
@@ -565,9 +639,9 @@ def hatch(image):
     return xdogImage + croppedTexture
 
 
-def xdog(image, epsilon=0.01): # Accepts only grayscale images
+def xdog(image, epsilon=0.01):  # Accepts only grayscale images
     """
-    Computes the eXtended Difference of Gaussians (XDoG) for a given image. This 
+    Computes the eXtended Difference of Gaussians (XDoG) for a given image. This
     is done by taking the regular Difference of Gaussians, thresholding it
     at some value, and applying the hypertangent function the the unthresholded
     values.
@@ -577,88 +651,88 @@ def xdog(image, epsilon=0.01): # Accepts only grayscale images
     """
     phi = 10
 
-    difference = dog(image, 200, 0.98)/255
-    diff = difference*image
+    difference = dog(image, 200, 0.98) / 255
+    diff = difference * image
 
     for i in range(0, len(difference)):
         for j in range(0, len(difference[0])):
             if difference[i][j] >= epsilon:
                 difference[i][j] = 1
             else:
-                ht = np.tanh(phi*(difference[i][j] - epsilon))
+                ht = np.tanh(phi * (difference[i][j] - epsilon))
                 difference[i][j] = 1 + ht
 
-    return difference*255
+    return difference * 255
 
 
 def dog(image, k=200, gamma=1):
     """
-    Computes the Difference of Gaussians (DoG) for a given image. Returns an image 
-    that results from computing the DoG. 
+    Computes the Difference of Gaussians (DoG) for a given image. Returns an image
+    that results from computing the DoG.
     image: an n x m array for which the DoG is computed.
     k: the multiplier the the second Gaussian sigma value.
     gamma: the multiplier for the second Gaussian result.
-  
+
     return: an n x m array representing the DoG
     """
 
     s1 = 0.5
-    s2 = s1*k
+    s2 = s1 * k
 
     gauss1 = gaussian_filter(image, s1)
     gauss_temp = gaussian_filter(image, s2)
-    gauss2 = gamma*gauss_temp
+    gauss2 = gamma * gauss_temp
 
     differenceGauss = gauss1 - gauss2
     return differenceGauss
 
 
-def threshold(image, thresh=127, maxval=255, type=cv2.THRESH_BINARY): # Accepts only grayscale images
-    ret,thresh1 = cv2.threshold(image, thresh=thresh, maxval=maxval, type=type)
+def threshold(image, thresh=127, maxval=255, type=cv2.THRESH_BINARY):  # Accepts only grayscale images
+    ret, thresh1 = cv2.threshold(image, thresh=thresh, maxval=maxval, type=type)
     return thresh1
-    
 
-def sobel(grayscaled_image, axis=-1): # Accepts only grayscale images
+
+def sobel(grayscaled_image, axis=-1):  # Accepts only grayscale images
     return scipy.ndimage.sobel(grayscaled_image, axis=axis)
-    
 
-def laplace(grayscaled_image, ddepth=cv2.CV_16S, kernel_size=3): # Accepts only grayscale images
+
+def laplace(grayscaled_image, ddepth=cv2.CV_16S, kernel_size=3):  # Accepts only grayscale images
     dst = cv2.Laplacian(grayscaled_image, ddepth, ksize=kernel_size)
     return dst
-    
 
-def gaussian_blur(img, kernel_size=(5, 5)): # Accepts only grayscale images
+
+def gaussian_blur(img, kernel_size=(5, 5)):  # Accepts only grayscale images
     """Applies a Gaussian Noise kernel"""
     return cv2.GaussianBlur(img, kernel_size, 0)
-    
 
-def edge_canny(img, low_threshold=100, high_threshold=200): # Accepts only grayscale images
+
+def edge_canny(img, low_threshold=100, high_threshold=200):  # Accepts only grayscale images
     edges = cv2.Canny(img, low_threshold, high_threshold)
     return edges
 
 
-def erode(grayscaled_image, kernel_size=(5, 5)): # Accepts only grayscale images
+def erode(grayscaled_image, kernel_size=(5, 5)):  # Accepts only grayscale images
     kernel = np.ones(kernel_size, 'uint8')
-    eroded_image = cv2.erode(grayscaled_image, kernel, iterations = 1)
+    eroded_image = cv2.erode(grayscaled_image, kernel, iterations=1)
     return eroded_image
 
 
-def dilate(img, kernel_size=(5, 5)): # Accepts only grayscale images
+def dilate(img, kernel_size=(5, 5)):  # Accepts only grayscale images
     kernel = np.ones(kernel_size, 'uint8')
     dilate_img = cv2.dilate(img, kernel, iterations=1)
     return dilate_img
 
-    
+
 def grayscale(img):
     return cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
 
 def showimage(img, cmap=None, figsize=[12, 12]):
-    figure(figsize = figsize)
+    figure(figsize=figsize)
     imshow(np.asarray(img), cmap=cmap)
-    
-    
-def resize(image, width, height): # Description:
-    interpolation = cv2.INTER_LINEAR                # The method of resizing
+
+
+def resize(image, width, height):  # Description:
+    interpolation = cv2.INTER_LINEAR  # The method of resizing
     output_image = cv2.resize(image, (width, height), interpolation)
     return output_image
