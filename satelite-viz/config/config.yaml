@@ -1,0 +1,164 @@
+# configuration file for topgis-viz
+
+# glob pattern for finding the source files
+sources: "data/utm_*.jpg"
+output_dir: "target/mosaic/"
+mosaic:
+    columns: 5
+    rows: 6
+    cell_width: 250
+    cell_height: 250
+pipeline:
+ - operation: src
+   target: A0
+   args: []
+ - operation: greyscale
+   target: A1
+   args:
+    - A0
+ - operation: red
+   target: A2
+   args:
+    - A0
+ - operation: green
+   target: A3
+   args:
+    - A0
+ - operation: alpha_blend
+   target: A4
+   args:
+    - A2
+    - A3
+   alpha: 0.5
+ - operation: equalized
+   target: B0
+   args:
+    - A0
+ - operation: equalized
+   target: B1
+   args:
+    - A1
+ - operation: equalized
+   target: B2
+   args:
+    - A2
+ - operation: equalized
+   target: B3
+   args:
+    - A3
+ - operation: equalized
+   target: B4
+   args:
+    - A4
+ - operation: dilate
+   target: D0
+   args:
+    - B1
+ - operation: erode
+   target: D1
+   args:
+    - B1
+ - operation: sobel
+   target: D2
+   args:
+    - B2
+ - operation: sobel
+   target: D3
+   args:
+    - B3
+ - operation: sobel
+   target: D4
+   args:
+    - B4
+ - operation: xdog
+   target: E0
+   args:
+    - B0
+ - operation: xdog
+   target: E1
+   args:
+    - B1
+ - operation: xdog
+   target: E2
+   args:
+    - B2
+ - operation: xdog
+   target: E3
+   args:
+    - B3
+ - operation: xdog
+   target: E4
+   args:
+    - B4
+ - operation: edge_detect_LSD
+   target: C0
+   args:
+    - B0
+ - operation: edge_detect_LSD
+   target: C1
+   args:
+    - B1
+ - operation: edge_detect_LSD
+   target: C2
+   args:
+    - B2
+ - operation: edge_detect_LSD
+   target: C3
+   args:
+    - B3
+ - operation: edge_detect_LSD
+   target: C4
+   args:
+    - B4
+ - operation: threshold
+   target: C2
+   args:
+     - A4
+   upper: 255
+   lower: 50
+ - operation: load_image
+   target: C3
+   path: /home/yordan/devel/python.assignments/topgis-viz/data/utm_00000.mask.png
+ - operation: binary_and
+   target: C4
+   args:
+     - C2
+     - C3
+ - operation: binary_xor
+   target: E0
+   args:
+     - C2
+     - C3
+ - operation: dilate
+   target: E1
+   args:
+    - C3
+   size: 100
+ - operation: erode
+   target: E2
+   args:
+    - C3
+   size: 10
+ - operation: outline
+   target: E3
+   args:
+    - C3
+   size: 5
+ - operation: colorize_mask
+   target: E4
+   args:
+    - E1
+   color: "#0000FF"
+ - operation: color_to_mask
+   target: F0
+   args:
+    - E4
+   color: "#0000FF"
+ - operation: load_image
+   target: F1
+   path: /home/yordan/devel/python.assignments/topgis-viz/data/00002.seg.png
+ - operation: color_to_mask
+   target: F2
+   args:
+    - F1
+   color: "#F51E1E"

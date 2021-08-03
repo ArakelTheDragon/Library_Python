@@ -1,0 +1,68 @@
+                                                        # Library includes
+import os
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+import argparse
+import glob
+from PIL import Image
+
+
+                                                        # Global variables
+path_to_config_file = "config/config.yaml"              # The yaml configuration file
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-c", "--config", help=path_to_config_file) # arg argument name (use no prefix for
+                                                                # positional arguments, -- or - prefix for
+                                                                # optional arguments or flags)
+
+args = parser.parse_args()
+config = args.config
+
+def equalize_histogram_rgb(rgb_img):
+    # convert from RGB color-space to YCrCb
+    ycrcb_img = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2YCrCb)
+
+    # equalize the histogram of the Y channel
+    ycrcb_img[:, :, 0] = cv2.equalizeHist(ycrcb_img[:, :, 0])
+
+    # convert back to RGB color-space from YCrCb
+    equalized_img = cv2.cvtColor(ycrcb_img, cv2.COLOR_YCrCb2BGR)
+
+    return equalized_img
+
+def load_yaml(yaml_path):
+    with open(yaml_path, "r", encoding="utf-8") as infile:
+        return yaml.load(infile, Loader=yaml.FullLoader)
+
+print("args.config: before entering args.function")
+if args.config == None:
+    print("args.config: entering args.function")
+    #equalize_histogram_rgb(image)
+    #load_yaml()
+
+def process():
+    print('\nNamed with wildcard *:')
+    for relative_path in sorted(glob.glob('data/*.jpg')):            # For index(and name) in list
+        print(relative_path)                                         # relative_path is "directory/image"
+        img = cv2.imread(relative_path)                              # Read the image from path + image name as an array into img
+        filename = os.path.basename(relative_path)                   # Replace the directories with nothing and leave
+                                                                     # only the file name
+        file_id = filename.replace(".jpg", "")                       # Replace string1 with string2, second time replace string1 with string2
+        for index in range(200):
+            filename_new = f"{file_id}_{index:05}.jpg"               # Using 05 gives an error
+
+        file_new_path = os.path.join("target/", filename_new)
+        print(file_new_path)
+        rgb_uint8 = (np.dstack((255,255,255)) * 255.999) .astype(np.uint8)
+        cv2.imwrite(file_new_path, rgb_uint8)                        # Write the image gray to a file with name
+    #sorted(glob.glob('*.png'))
+
+
+                                                                     # OpenCV library method for creating an RGB image
+    whiteblankimage = 255 * np.ones(shape=[1000, 1000, 3], dtype=np.uint8)
+    cv2.rectangle(whiteblankimage, pt1=(200, 200), pt2=(300, 300), color=(0, 0, 255), thickness=10)
+    plt.imshow(whiteblankimage)
+    plt.show()
+
+process()
